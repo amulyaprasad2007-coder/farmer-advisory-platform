@@ -1,0 +1,92 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: white;
+}
+
+/* Header */
+.header {
+    width: 200%;
+    height: 70px;
+    background: white;
+    color: black;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    font-size: 22px;
+    font-weight: bold;
+    border-bottom: 1px solid #ccc;
+}
+
+/* Center Container */
+.container {
+    height: calc(100vh - 70px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Form Box */
+.form-box {
+    width: 350px;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.form-box h2 {
+    margin-bottom: 20px;
+    color: black;
+}
+
+/* Inputs */
+.form-box input,
+.form-box select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Buttons */
+button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background: #07ce43; /* light green */
+    color: black;        /* dark letters */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #66cc66;
+    margin-top: 10px;
+    width: 100%; /* Changed from 200% to 100% to keep it stable */
+}
+
+.container, .card {
+    border: 2px solid #000; /* Dark border for main box */
+}
+
+input:focus, select:focus {
+    border-color: #2e7d32; /* green highlight */
+    outline: none;
+}
+
+input, select, textarea {
+    border: 2px solid #000; /* Dark black border */
+}
+
+input, select, textarea {
+    border: 2px solid #333; /* Dark gray */
+}

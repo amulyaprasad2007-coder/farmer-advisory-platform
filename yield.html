@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yield Prediction Dashboard</title>
+    <style>
+        :root {
+            --bg: #fdfcf8;
+            --white: #ffffff;
+            --green: #2e7d32;
+            --light-green: #e8f5e9;
+            --yellow: #fbc02d;
+            --light-yellow: #fff9c4;
+            --text: #2d4030;
+            --border: #e0e6df;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border: 1px solid var(--border);
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 0 20px 0;
+            color: #1b3022;
+        }
+
+        .input-row { display: flex; gap: 12px; }
+        .field { flex: 1; }
+        
+        label { 
+            display: block; 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            margin-bottom: 6px; 
+            text-transform: uppercase;
+            color: #666;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        select:focus, input:focus { border-color: var(--green); }
+
+        .yield-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .yield-card {
+            padding: 18px;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .yield-card h1 { margin: 8px 0; font-size: 2rem; font-weight: 800; }
+        .yield-card p { margin: 0; font-size: 0.7rem; letter-spacing: 0.5px; opacity: 0.8; }
+        .yield-card span { font-size: 0.8rem; font-weight: 500; }
+
+        .green-card { background: #eef7ee; border: 1px solid #c8e6c9; color: #1b5e20; }
+        .yellow-card { background: #fffdeb; border: 1px solid #fff59d; color: #856404; }
+
+        .section-title {
+            font-size: 0.9rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .scroll-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        .price-info { text-align: right; }
+        .price-val { font-weight: 700; font-size: 1rem; }
+        .price-change { 
+            color: var(--green); 
+            font-size: 0.75rem; 
+            font-weight: 700; 
+            background: #e8f5e9; 
+            padding: 2px 6px; 
+            border-radius: 4px;
+            margin-left: 5px;
+        }
+
+        .advisory-box { 
+            background: #f8faf8; 
+            border-radius: 12px; 
+            padding: 15px; 
+            border: 1px solid #edf2ed;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        /* Custom Scrollbar */
+        .scroll-list::-webkit-scrollbar { width: 4px; }
+        .scroll-list::-webkit-scrollbar-thumb { background: #d1d1d1; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <section class="card">
+        <h2 class="header-title">🌿 Yield Prediction</h2>
+        <div class="input-row">
+            <div class="field">
+                <label>Crop Selection</label>
+                <select id="cropSelect" onchange="updateDashboard()"></select>
+            </div>
+            <div class="field">
+                <label>Area (Hectare)</label>
+                <input type="number" id="farmArea" value="2" step="0.5" oninput="updateDashboard()">
+            </div>
+        </div>
+    </section>
+
+    <div class="yield-grid">
+        <div class="yield-card green-card">
+            <p>EXPECTED YIELD</p>
+            <h1 id="yieldVal">0</h1>
+            <span>kg / hectare</span>
+        </div>
+        <div class="yield-card yellow-card">
+            <p>TOTAL PRODUCTION</p>
+            <h1 id="totalVal">0</h1>
+            <span>kg (for your farm)</span>
+        </div>
+    </div>
+
+    <section class="card">
+        <div class="section-title">💡 SMART ADVISORY</div>
+        <div class="advisory-box">
+            <strong id="adviceCrop" style="color:var(--green); display:block; margin-bottom:5px;">Crop</strong>
+            <span id="adviceText"></span>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="section-title">💰 MANDI / MARKET PRICE <span style="font-weight:400; font-size:0.7rem; color:#888; margin-left:auto;">MSP 2024-25</span></div>
+        <div id="priceList" class="scroll-list"></div>
+    </section>
+</div>
+
+<script>
+    const cropData = {
+        "Rice (Paddy)": { yield: 2800, price: 2300, change: "117", advice: "NPK 120:60:40 kg/ha. Apply Urea in 3 splits at transplanting, tillering & panicle." },
+        "Wheat": { yield: 3500, price: 2425, change: "150", advice: "Ensure 4-6 irrigations. First irrigation at CRI stage (21 days after sowing)." },
+        "Maize (Corn)": { yield: 2500, price: 2090, change: "220", advice: "Keep soil moist but avoid waterlogging. Best for well-drained loamy soils." },
+        "Sugarcane": { yield: 75000, price: 370, change: "30", advice: "Use trench planting method. Requires heavy potassium for high sugar content." },
+        "Cotton": { yield: 550, price: 7121, change: "501", advice: "Space plants 60x60cm. Monitor for Pink Bollworm during flowering." },
+        "Soybean": { yield: 1500, price: 4892, change: "292", advice: "Inoculate seeds with Rhizobium. Avoid deep sowing (max 3cm)." },
+        "Tomato": { yield: 25000, price: 1200, change: "-200", advice: "Staking is mandatory. Apply Boron during flowering to prevent fruit cracking." },
+        "Onion": { yield: 18000, price: 1150, change: "80", advice: "Requires sandy loam soil. Stop irrigation 15 days before harvesting." },
+        "Groundnut": { yield: 2200, price: 6377, change: "322", advice: "Apply Gypsum @ 400kg/ha at pegging stage for better pod filling." },
+        "Turmeric": { yield: 5500, price: 11000, change: "500", advice: "Use organic mulch to conserve moisture. Harvest when leaves turn yellow." },
+        "Banana": { yield: 45000, price: 1500, change: "-100", advice: "Drip irrigation is highly recommended. Desuckering should be done monthly." },
+        "Jowar": { yield: 1200, price: 3180, change: "180", advice: "Drought resistant. Best suited for black cotton soils." },
+        "Bajra": { yield: 1400, price: 2625, change: "125", advice: "Needs very little water. Avoid waterlogged fields." },
+        "Potato": { yield: 22000, price: 680, change: "-40", advice: "Earthing up should be done 30-40 days after planting." },
+        "Sunflower": { yield: 1600, price: 6760, change: "360", advice: "Hand pollination (rubbing flower heads) increases seed setting." }
+    };
+
+    function updateDashboard() {
+        const selectedCrop = document.getElementById('cropSelect').value;
+        const area = parseFloat(document.getElementById('farmArea').value) || 0;
+        const data = cropData[selectedCrop];
+
+        document.getElementById('yieldVal').innerText = data.yield.toLocaleString();
+        document.getElementById('totalVal').innerText = (data.yield * area).toLocaleString();
+        document.getElementById('adviceCrop').innerText = selectedCrop.toUpperCase();
+        document.getElementById('adviceText').innerText = data.advice;
+    }
+
+    function init() {
+        const select = document.getElementById('cropSelect');
+        const priceList = document.getElementById('priceList');
+        
+        for (let crop in cropData) {
+            let opt = document.createElement('option');
+            opt.value = crop;
+            opt.innerHTML = crop;
+            select.appendChild(opt);
+
+            let changeClass = cropData[crop].change.startsWith('-') ? 'style="color:#d32f2f; background:#ffebee"' : '';
+            
+            priceList.innerHTML += `
+                <div class="price-row">
+                    <span>${crop}</span>
+                    <div class="price-info">
+                        <span class="price-val">₹${cropData[crop].price}/qtl</span>
+                        <span class="price-change" ${changeClass}>${cropData[crop].change.startsWith('-') ? '' : '+'}${cropData[crop].change}</span>
+                    </div>
+                </div>
+            `;
+        }
+        updateDashboard();
+    }
+
+    window.onload = init;
+</script>
+
+</body>
+</html>

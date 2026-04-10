@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harvest Tracker</title>
+    <style>
+        /* Merged CSS */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f0;
+            display: flex;
+            justify-content: center;
+            padding-top: 50px;
+        }
+
+        .harvest-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 { color: #2d5a27; margin-top: 0; }
+
+        .input-group { margin-bottom: 1.5rem; }
+
+        label { display: block; margin-bottom: 0.5rem; font-weight: bold; color: #444; }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover { background-color: #45a049; }
+
+        .result-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+            background: #f9f9f9;
+            border-left: 5px solid #4CAF50;
+            line-height: 1.5;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin: 1.5rem 0 0.5rem 0;
+            overflow: hidden;
+            display: none; /* Hidden until calculation */
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #4caf50, #8bc34a);
+            transition: width 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+
+<div class="harvest-card">
+    <h2>🌾 Harvest Tracker</h2>
+    
+    <div class="input-group">
+        <label for="plantDate">Planting Date</label>
+        <input type="date" id="plantDate" value="2024-01-01">
+    </div>
+
+    <div class="input-group">
+        <label for="cropType">Crop Season</label>
+        <select id="cropType">
+            <option value="rabi">Rabi (150 Days)</option>
+            <option value="kharif">Kharif (120 Days)</option>
+            <option value="other">Other (90 Days)</option>
+        </select>
+    </div>
+
+    <button onclick="updateCountdown()">Check Harvest Status</button>
+
+    <div class="progress-container" id="progressContainer">
+        <div id="progressBar" class="progress-bar"></div>
+    </div>
+
+    <div id="result" class="result-box">
+        Enter details to see your countdown.
+    </div>
+</div>
+
+<script>
+    // Fixed JavaScript
+    function updateCountdown() {
+        const plantDateVal = document.getElementById("plantDate").value;
+        const cropType = document.getElementById("cropType").value;
+        const resultDiv = document.getElementById("result");
+        const progressBar = document.getElementById("progressBar");
+        const progressContainer = document.getElementById("progressContainer");
+
+        // 1. Validation
+        if (!plantDateVal) {
+            resultDiv.innerHTML = "❌ Error: Please select a date.";
+            return;
+        }
+
+        // 2. Set days based on selection
+        let daysToHarvest = cropType === "rabi" ? 150 : (cropType === "kharif" ? 120 : 90);
+
+        // 3. Calculations
+        const start = new Date(plantDateVal);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); 
+        
+        const harvestDate = new Date(start);
+        harvestDate.setDate(start.getDate() + daysToHarvest);
+
+        const diffInMs = harvestDate - today;
+        const daysLeft = Math.ceil(diffInMs / (1000 * 60 * 60 * 24));
+
+        // 4. Progress Bar Logic
+        const totalDuration = daysToHarvest;
+        const elapsed = totalDuration - daysLeft;
+        let progressPercent = (elapsed / totalDuration) * 100;
+        
+        // Clamp percentage between 0 and 100
+        progressPercent = Math.min(100, Math.max(0, progressPercent));
+
+        progressContainer.style.display = "block";
+        progressBar.style.width = progressPercent + "%";
+
+        // 5. Update Display
+        if (daysLeft > 0) {
+            resultDiv.innerHTML = `<strong>🗓️ Harvest Countdown:</strong><br>${daysLeft} days remaining<br><small>Target: ${harvestDate.toDateString()}</small>`;
+            resultDiv.style.borderLeftColor = "#4CAF50";
+        } else if (daysLeft === 0) {
+            resultDiv.innerHTML = "<strong>🎉 ALERT: Today is Harvest Day!</strong>";
+            resultDiv.style.borderLeftColor = "#ff9800";
+        } else {
+            resultDiv.innerHTML = `✅ Harvest was <strong>${Math.abs(daysLeft)} days ago</strong>.`;
+            resultDiv.style.borderLeftColor = "#2196F3";
+        }
+    }
+</script>
+
+</body>
+</html>

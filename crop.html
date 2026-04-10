@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Selection Tool</title>
+    <style>
+        /* CSS: Styling the interface */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        h2 { color: #2d5a27; margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1rem; text-align: left; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: bold; color: #333; }
+        select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+        button {
+            width: 100%;
+            padding: 1rem;
+            background-color: #2d5a27;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background 0.3s;
+        }
+        button:hover { background-color: #1e3d1a; }
+        #result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            display: none; /* Hidden until button is clicked */
+        }
+        .feasible { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .difficult { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Crop Selector</h2>
+    
+    <div class="form-group">
+        <label for="season">Select Season:</label>
+        <select id="season">
+            <option value="kharif">Kharif</option>
+            <option value="rabi">Rabi</option>
+            <option value="zaid">Zaid</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="soil">Select Soil Type:</label>
+        <select id="soil">
+            <option value="alluvial">Alluvial</option>
+            <option value="black">Black</option>
+            <option value="red">Red</option>
+            <option value="laterite">Laterite</option>
+            <option value="desert">Desert</option>
+        </select>
+    </div>
+
+    <button onclick="checkCrop()">Check Feasibility</button>
+
+    <div id="result"></div>
+</div>
+
+<script>
+    // JavaScript: Logic for crop data and selection
+    const cropData = {
+        kharif: {
+            alluvial: ["Rice", "Sugar cane", "Cotton"],
+            black: ["Cotton", "Soybean", "Maize"],
+            red: ["Groundnut", "Maize", "Pulses"],
+            laterite: ["Tea", "Coffee", "Rubber"],
+            desert: ["Bajra", "Jowar"]
+        },
+        rabi: {
+            alluvial: ["Wheat", "Barley", "Mustard"],
+            black: ["Linseed", "Gram", "Safflower"],
+            red: [ "Oilseeds"],
+            laterite: ["Cashew"],
+            desert: ["Mustard (with irrigation)"]
+        },
+        zaid: {
+            alluvial: ["Watermelon", "Cucumber", "Muskmelon"],
+            black: ["Vegetables", "Fodder crops"],
+            red: ["Vegetables"],
+            laterite: ["yam"],
+            desert: ["Fodder crops"]
+        }
+    };
+
+    function checkCrop() {
+        const season = document.getElementById('season').value;
+        const soil = document.getElementById('soil').value;
+        const resultDiv = document.getElementById('result');
+
+        resultDiv.style.display = "block";
+
+        if (cropData[season] && cropData[season][soil]) {
+            const crops = cropData[season][soil];
+            resultDiv.className = "feasible";
+            resultDiv.innerHTML = `<strong>FEASIBLE:</strong> Suitable crops include ${crops.join(", ")}.`;
+        } else {
+            resultDiv.className = "difficult";
+            resultDiv.innerHTML = "<strong>DIFFICULT:</strong> Standard crops for this season are hard to grow in this soil type without special treatment.";
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>👩‍🌾 Farmer Advisory Platform</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="header">
+        | 🌾 Farmer Advisory Platform
+    </div>
+
+    <div class="container">
+        <div class="form-box">
+            <h2> 🌊 Farmer Details</h2>
+
+            <form>
+                <input type="text" placeholder="Farmer Name" required>
+                <input type="text" placeholder="Village" required>
+
+                <input type="number" placeholder="Land Area (in acres)" required>
+
+                <button type="button" onclick="goToPage('crop.html')">Crop Selection</button>
+                <button type="button" onclick="goToPage('countdown.html')">Harvest Countdown</button>
+                <button type="button" onclick="goToPage('yield.html')">Yield Prediction</button>
+                <button type="button" onclick="goToPage('weather.html')">Weather Info</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
